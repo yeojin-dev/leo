@@ -9,4 +9,6 @@ branches:
 script:
   - "flake8 ."
   - "isort . --check"
-  - pytest
+  - "coverage run --source='.' -m pytest"
+after_success:
+  - coveralls
