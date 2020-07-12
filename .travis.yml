@@ -7,4 +7,6 @@ branches:
   only:
     - master
 script:
+  - "flake8 ."
+  - "isort . --check"
   - pytest
