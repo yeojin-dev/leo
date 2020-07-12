@@ -1,10 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
 
+<head>
+    <!-- Webpage Title -->
+    <title>Leo | 스파르타코딩클럽</title>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <!-- 구글폰트 -->
+    <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Do+Hyeon&display=swap" rel="stylesheet">
+
+    <script type="text/javascript">
+        function submit_homework() {
+            let title = $('#title').val();
+            let author = $('#author').val();
+
+            if (title === '') {
+                alert('제목을 입력해주세요');
+                $('#title').focus();
+                return;
+            } else if (author === '') {
+                alert('만든 사람를 입력해주세요');
+                $('#author').focus();
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/homework",
+                data: {title_give: title, author_give: author},
+                success: function (response) {
+                    if (response['result'] === 'success') {
+                        var form_data = new FormData($('#homework')[0]);
+                        form_data.append('file', $('input[type=file]')[0].files[0]);
+
+                        $.ajax({
+                            type: "POST",
+                            url: `/homework/${author}/${title}`,
+                            data: form_data,
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            success: function (response) {
+                                if (!(response['result'] === 'success')) {
+                                    alert('파일 업로드 실패하였습니다. 관리자에게 문의해주세요.');
+                                }
+                                window.location.reload();
+                            }
+                        })
+                    }
+                }
+            })
+        }
+
+        $(document).ready(function () {
+            $('#homework-tbody').html('');
+            listing();
+        });
+
+        function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/homework",
+                data: {},
+                success: function (response) {
+                    if (response['result'] === 'success') {
+                        let reviews = response['homework'];
+                        for (let i = 0; i < reviews.length; i++) {
+                            make_tr(reviews[i]['title'], reviews[i]['author']);
+                        }
+                    } else {
+                        alert('숙제 정보를 받아오지 못했습니다');
+                    }
+                }
+            })
+        }
+
+        function make_tr(title, author) {
+            let temp_html = `<tr>
+                                <td>${title}</td>
+                                <td>${author}</td>
+                                <td><a href="/homework/${author}/${title}">보러가기</a></td>
+                            </tr>`;
+            $('#homework-tbody').append(temp_html);
+        }
+    </script>
+
+    <style type="text/css">
+        * {
+            font-family: 'Do Hyeon', sans-serif;
+        }
+
+        .wrap {
+            width: 500px;
+            margin: auto;
+        }
+
+        .img {
+            background-image: url('{{url_for('static', filename='leo.png')}}');
+            background-size: cover;
+            background-position: center;
+            width: 500px;
+            height: 500px;
+        }
+
+        .info {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1,
+        h5 {
+            display: inline;
+        }
+
+        .homework-submit {
+            text-align: center;
+        }
+
+        .homework-list {
+            margin-top: 100px;
+        }
+
+        .meta_info {
+            width: 20%;
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrap">
+    <div class="img"></div>
+    <div class="info">
+        <h1>숙제 파일을 올려주세요.</h1>
+        <p>다른 사람을 위해 숙제 파일을 남겨주세요! 다 같이 좋은 책을 읽는다면 다 함께 행복해질 수 있지 않을까요?</p>
+    </div>
+    <div class="info">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">제목</span>
+            </div>
+            <input type="text" class="form-control" id="title" aria-describedby="basic-addon3">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">만든 사람</span>
+            </div>
+            <input type="text" class="form-control" id="author" aria-describedby="basic-addon3">
+        </div>
+        <form>
+            <div class="custom-file mb-3">
+                <input type="file" class="custom-file-input" id="customFile">
+                <label class="custom-file-label" for="customFile">Choose file</label>
+            </div>
+        </form>
+        <div class="homework-submit">
+            <button onclick="submit_homework()" type="button" class="btn btn-primary">숙제 제출하기</button>
+        </div>
+    </div>
+    <script>
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
+    <div class="homework-list">
+        <table class="table">
+            <thead>
+            <tr>
+                <th class="meta_info" scope="col">제목</th>
+                <th class="meta_info" scope="col">만든 사람</th>
+                <th scope="col">링크</th>
+            </tr>
+            </thead>
+            <tbody id="homework-tbody">
+            <tr>
+                <td>Otto</td>
+                <td>@mdo</td>
+                <td>@mdo</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
+
 </html>
