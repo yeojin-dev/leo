@@ -13,9 +13,11 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'media')
+UPLOAD_PASSWORD = os.environ['UPLOAD_PASSWORD']
 ALLOWED_EXTENSIONS = {'html'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_PASSWORD'] = UPLOAD_PASSWORD
 
 client = MongoClient('localhost', 27017)
 db = client.leo
@@ -48,6 +50,10 @@ def upload_homework(author, title):
 def submit_homework():
     title_receive = request.form['title_give']
     author_receive = request.form['author_give']
+    password_receive = request.form['password_give']
+
+    if password_receive != app.config['UPLOAD_PASSWORD']:
+        return jsonify({'result': 'fail', 'msg': '비밀번호가 틀렸습니다.'})
 
     homework_name = {'title': title_receive, 'author': author_receive}
 
