@@ -33,7 +33,7 @@ def upload_homework(author, title):
     homework_name = {'title': title, 'author': author}
 
     if file := request.files.get('file'):
-        filename = secure_filename(f'{author}_{title}_{file.filename}')
+        filename = secure_filename(f'{author}_{title}_practice.html')
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
