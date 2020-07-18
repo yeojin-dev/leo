@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
 
-def test_index(client):
+def test_home(client):
     response = client.get('/')
     assert response.status_code == HTTPStatus.OK
