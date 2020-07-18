@@ -1,6 +1,8 @@
 language: python
 python:
   - 3.8
+services:
+  - mongodb
 install:
   - pip install -r requirements_travis.txt
 branches:
