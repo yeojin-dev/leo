@@ -14,6 +14,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 load_dotenv()
 
+BASE_FOLDER = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.environ['UPLOAD_FOLDER']
 UPLOAD_PASSWORD = os.environ['UPLOAD_PASSWORD']
 ALLOWED_EXTENSIONS = {'html'}
@@ -41,7 +42,7 @@ def upload_homework(author, title):
 
     if file := request.files.get('file'):
         filename = secure_filename(f'{author}_{title}_practice.html')
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        filepath = os.path.join(BASE_FOLDER, app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
         db.homework.update(homework_name, {'$set': {'filepath': filepath}})
@@ -79,7 +80,7 @@ def get_homework(author, title):
     homework_name = {'title': title, 'author': author}
     homework = db.homework.find_one(homework_name)
     filename = homework.get('filepath').split('/')[-1]
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return send_from_directory(os.path.join(BASE_FOLDER, app.config['UPLOAD_FOLDER']), filename)
 
 
 if __name__ == '__main__':
