@@ -16,14 +16,18 @@ load_dotenv()
 
 UPLOAD_FOLDER = os.environ['UPLOAD_FOLDER']
 UPLOAD_PASSWORD = os.environ['UPLOAD_PASSWORD']
-MONGO_CLIENT_URI = os.environ['MONGO_CLIENT_URI']
 ALLOWED_EXTENSIONS = {'html'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_PASSWORD'] = UPLOAD_PASSWORD
 
-client = MongoClient(MONGO_CLIENT_URI, 27017)
-db = client.leo
+if os.environ.get('FLASK_ENV') == 'test':
+    client = MongoClient(os.environ['MONGO_TEST_CLIENT_URI'], 27017)
+    db_name = os.environ['MONGO_TEST_DB_NAME']
+else:
+    client = MongoClient(os.environ['MONGO_CLIENT_URI'], 27017)
+    db_name = os.environ['MONGO_DB_NAME']
+db = getattr(client, db_name)
 
 
 @app.route('/')
