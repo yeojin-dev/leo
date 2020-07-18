@@ -10,7 +10,7 @@
 <h4 align="center">A teaching assistant of <a href="https://spartacodingclub.kr" target="_blank">Sparta Coding Club</a>.</h4>
 
 <p align="center">
-  <a href="https://travis-ci.org/yeojin-dev/leo"><img src=https://travis-ci.org/yeojin-dev/leo.svg?branch=master"></a>
+  <a href="https://travis-ci.org/yeojin-dev/leo"><img src="https://travis-ci.org/yeojin-dev/leo.svg?branch=master"></a>
   <a href="https://coveralls.io/github/yeojin-dev/leo?branch=master">
       <img src="https://coveralls.io/repos/github/yeojin-dev/leo/badge.svg?branch=master">
   </a>
