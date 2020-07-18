@@ -7,19 +7,22 @@ from flask import (
     request,
     send_from_directory,
 )
+from flask.cli import load_dotenv
 from pymongo import MongoClient
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+load_dotenv()
 
-UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'media')
+UPLOAD_FOLDER = os.environ['UPLOAD_FOLDER']
 UPLOAD_PASSWORD = os.environ['UPLOAD_PASSWORD']
+MONGO_CLIENT_URI = os.environ['MONGO_CLIENT_URI']
 ALLOWED_EXTENSIONS = {'html'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_PASSWORD'] = UPLOAD_PASSWORD
 
-client = MongoClient('localhost', 27017)
+client = MongoClient(MONGO_CLIENT_URI, 27017)
 db = client.leo
 
 
