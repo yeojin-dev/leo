@@ -7,7 +7,7 @@ def test_home(client):
     assert response.status_code == HTTPStatus.OK
 
 
-def test_submit_homework(client):
+def test_submit_and_upload_homework(client):
     title = 'test html'
     author = 'tester'
     password = client.application.config['UPLOAD_PASSWORD']
@@ -16,6 +16,13 @@ def test_submit_homework(client):
     response = client.post('/homework', data=data)
     assert response.status_code == HTTPStatus.OK
     assert response.json['result'] == 'success'
+
+    temp_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'temp.html')
+
+    with open(temp_filepath, 'rb') as temp_file:
+        data = {'file': (temp_file, temp_file.name)}
+        response = client.post(f'/homework/{author}/{title}', data=data, content_type='multipart/form-data')
+    assert response.status_code == HTTPStatus.OK
 
 
 def test_submit_homework_with_a_wrong_password(client):
@@ -27,14 +34,3 @@ def test_submit_homework_with_a_wrong_password(client):
     response = client.post('/homework', data=data)
     assert response.status_code == HTTPStatus.OK
     assert response.json['result'] == 'fail'
-
-
-def test_upload_homework(client):
-    title = 'test html'
-    author = 'tester'
-    temp_filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'temp.html')
-
-    with open(temp_filepath, 'rb') as temp_file:
-        data = {'file': (temp_file, temp_file.name)}
-        response = client.post(f'/homework/{author}/{title}', data=data, content_type='multipart/form-data')
-    assert response.status_code == HTTPStatus.OK
