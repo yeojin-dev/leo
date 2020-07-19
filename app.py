@@ -49,7 +49,7 @@ def upload_homework(author, title):
         if file_uuid := homework.get('uuid'):
             filename = f'{file_uuid}.html'
         else:
-            new_file_uuid = uuid.uuid1()
+            new_file_uuid = uuid.uuid4()
             filename = f'{new_file_uuid}.html'
 
         filepath = os.path.join(BASE_FOLDER, app.config['UPLOAD_FOLDER'], filename)
@@ -69,7 +69,7 @@ def submit_homework():
     title_receive = request.form['title_give']
     author_receive = request.form['author_give']
     password_receive = request.form['password_give']
-    file_uuid = str(uuid.uuid1())
+    file_uuid = str(uuid.uuid4())
 
     if password_receive != app.config['UPLOAD_PASSWORD']:
         return jsonify({'result': 'fail', 'msg': '비밀번호가 틀렸습니다.'})
