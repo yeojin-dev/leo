@@ -1,4 +1,6 @@
+import datetime
 import os
+import uuid
 
 from flask import (
     Flask,
@@ -9,7 +11,7 @@ from flask import (
 )
 from flask.cli import load_dotenv
 from pymongo import MongoClient
-from werkzeug.utils import secure_filename
+from pytz import timezone
 
 app = Flask(__name__)
 load_dotenv()
@@ -38,14 +40,22 @@ def home():
 
 @app.route('/homework/<string:author>/<string:title>', methods=['POST'])
 def upload_homework(author, title):
+    upload_time = datetime.datetime.now(timezone('Asia/Seoul'))
     homework_name = {'title': title, 'author': author}
 
     if file := request.files.get('file'):
-        filename = secure_filename(f'{author}_{title}_practice.html')
+        homework = db.homework.find_one(homework_name)
+
+        if file_uuid := homework.get('uuid'):
+            filename = f'{file_uuid}.html'
+        else:
+            new_file_uuid = uuid.uuid1()
+            filename = f'{new_file_uuid}.html'
+
         filepath = os.path.join(BASE_FOLDER, app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
 
-        db.homework.update(homework_name, {'$set': {'filepath': filepath}})
+        db.homework.update(homework_name, {'$set': {'filepath': filepath, 'upload_time': upload_time}})
         result = {'result': 'success', 'msg': '숙제가 성공적으로 등록되었습니다.'}
 
     else:
@@ -59,13 +69,14 @@ def submit_homework():
     title_receive = request.form['title_give']
     author_receive = request.form['author_give']
     password_receive = request.form['password_give']
+    file_uuid = str(uuid.uuid1())
 
     if password_receive != app.config['UPLOAD_PASSWORD']:
         return jsonify({'result': 'fail', 'msg': '비밀번호가 틀렸습니다.'})
 
     homework_name = {'title': title_receive, 'author': author_receive}
 
-    db.homework.update_one(homework_name, {'$set': homework_name}, upsert=True)
+    db.homework.update_one(homework_name, {'$set': {'uuid': file_uuid, **homework_name}}, upsert=True)
     return jsonify({'result': 'success', 'msg': '숙제가 성공적으로 등록되었습니다.'})
 
 
