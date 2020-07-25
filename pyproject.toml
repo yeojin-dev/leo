@@ -10,6 +10,7 @@ flask = "^1.1.2"
 pymongo = "^3.10.1"
 python-dotenv = "^0.14.0"
 pytz = "^2020.1"
+slackclient = "^2.7.3"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.0.9"

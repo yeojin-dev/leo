@@ -2,6 +2,7 @@ import datetime
 import os
 import uuid
 
+import slack
 from flask import (
     Flask,
     jsonify,
@@ -25,12 +26,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_PASSWORD'] = UPLOAD_PASSWORD
 
 if os.environ.get('FLASK_ENV') == 'test':
-    client = MongoClient(os.environ['MONGO_TEST_CLIENT_URI'], 27017)
+    mongo_client = MongoClient(os.environ['MONGO_TEST_CLIENT_URI'], 27017)
     db_name = os.environ['MONGO_TEST_DB_NAME']
 else:
-    client = MongoClient(os.environ['MONGO_CLIENT_URI'], 27017)
+    mongo_client = MongoClient(os.environ['MONGO_CLIENT_URI'], 27017)
     db_name = os.environ['MONGO_DB_NAME']
-db = getattr(client, db_name)
+db = getattr(mongo_client, db_name)
+
+slack_client = slack.WebClient(token=os.environ['SLACK_API_TOKEN']) if os.environ.get('FLASK_ENV') == 'test' else None
 
 
 @app.route('/')
