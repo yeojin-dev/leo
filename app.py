@@ -1,6 +1,7 @@
 import datetime
 import os
 import uuid
+from urllib.parse import urlparse
 
 import slack
 from flask import (
@@ -17,6 +18,8 @@ from pytz import timezone
 app = Flask(__name__)
 load_dotenv()
 
+LEO_HOST = os.environ['LEO_HOST']
+FLASK_ENV = os.environ['FLASK_ENV']
 BASE_FOLDER = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.environ['UPLOAD_FOLDER']
 UPLOAD_PASSWORD = os.environ['UPLOAD_PASSWORD']
@@ -25,7 +28,7 @@ ALLOWED_EXTENSIONS = {'html'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_PASSWORD'] = UPLOAD_PASSWORD
 
-if os.environ.get('FLASK_ENV') == 'test':
+if FLASK_ENV == 'test':
     mongo_client = MongoClient(os.environ['MONGO_TEST_CLIENT_URI'], 27017)
     db_name = os.environ['MONGO_TEST_DB_NAME']
 else:
@@ -33,7 +36,9 @@ else:
     db_name = os.environ['MONGO_DB_NAME']
 db = getattr(mongo_client, db_name)
 
-slack_client = None if os.environ.get('FLASK_ENV') == 'test' else slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
+slack_client = None if FLASK_ENV == 'test' else slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
+SLACK_CLASS_CHANNEL = os.environ.get('SLACK_CLASS_CHANNEL', '')
+SLACK_TUTOR_MEMBER_ID = os.environ.get('SLACK_TUTOR_MEMBER_ID', '')
 
 
 @app.route('/')
@@ -59,6 +64,18 @@ def upload_homework(author, title):
         file.save(filepath)
 
         db.homework.update(homework_name, {'$set': {'filepath': filepath, 'upload_time': upload_time}})
+
+        if slack_client:
+            slack_msg = f':trophy::trophy::trophy: {author} 님의 {title} 웹페이지를 업로드했습니다.'
+            if SLACK_TUTOR_MEMBER_ID:
+                slack_msg += f' <@{SLACK_TUTOR_MEMBER_ID}>'
+            homework_url = urlparse(f'http://{LEO_HOST}/homework/{author}/{title}').geturl()
+            slack_msg += f'\n<{homework_url}|과제 페이지로 이동>'
+            try:
+                slack_client.chat_postMessage(channel=SLACK_CLASS_CHANNEL, text=slack_msg)
+            except Exception:
+                pass
+
         result = {'result': 'success', 'msg': '숙제가 성공적으로 등록되었습니다.'}
 
     else:
