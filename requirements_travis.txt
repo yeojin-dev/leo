@@ -1,3 +1,5 @@
+aiohttp==3.6.2
+async-timeout==3.0.1
 atomicwrites==1.4.0; sys_platform == "win32"
 attrs==19.3.0
 certifi==2020.6.20
@@ -16,6 +18,7 @@ jinja2==2.11.2
 markupsafe==1.1.1
 mccabe==0.6.1
 more-itertools==8.4.0
+multidict==4.7.6
 packaging==20.4
 pluggy==0.13.1
 py==1.9.0
@@ -28,6 +31,8 @@ python-dotenv==0.14.0
 pytz==2020.1
 requests==2.24.0
 six==1.15.0
+slackclient==2.7.3
 urllib3==1.25.9
 wcwidth==0.2.5
 werkzeug==1.0.1
+yarl==1.4.2
