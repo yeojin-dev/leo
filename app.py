@@ -110,7 +110,7 @@ def read_homework():
 def get_homework(author, title):
     homework_name = {'title': title, 'author': author}
     homework = db.homework.find_one(homework_name)
-    filename = homework.get('filepath').split('/')[-1]
+    filename = os.path.split(homework.get('filepath'))[-1]
     return send_from_directory(os.path.join(BASE_FOLDER, app.config['UPLOAD_FOLDER']), filename)
 
 
