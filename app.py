@@ -33,7 +33,7 @@ else:
     db_name = os.environ['MONGO_DB_NAME']
 db = getattr(mongo_client, db_name)
 
-slack_client = slack.WebClient(token=os.environ['SLACK_API_TOKEN']) if os.environ.get('FLASK_ENV') == 'test' else None
+slack_client = None if os.environ.get('FLASK_ENV') == 'test' else slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
 
 
 @app.route('/')
